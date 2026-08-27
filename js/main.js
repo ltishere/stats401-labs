@@ -31,3 +31,8 @@ console.log(studentList);
 console.log("D3 version:", d3.version);
 d3.select("#message")
     .text("This text was changed using D3!");
+
+const svg = d3.select("#svg-demo")
+    .append("svg")
+    .attr("width", 600)
+    .attr("height", 300);
