@@ -1,13 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 2</title>
-  <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lab 2 - Multivariate Visualization</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        /* Lab 2 specific styles.
+           You can move these into css/style.css if you prefer. */
+
+        .tooltip {
+            position: absolute;
+            background: #ffffff;
+            border: 1px solid #aaa;
+            padding: 8px 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #chart svg {
+            max-width: 100%;
+            height: auto;
+            font-family: inherit;
+        }
+
+        .region-label {
+            font-size: 13px;
+            font-weight: 700;
+            fill: #4a5560;
+            letter-spacing: 0.06em;
+        }
+
+        .city-names text {
+            font-size: 13px;
+            fill: #24303c;
+        }
+
+        .value-labels text {
+            font-size: 12px;
+            fill: #6b7683;
+        }
+
+        .axis text {
+            font-size: 12px;
+            fill: #4a5560;
+        }
+
+        .axis-title {
+            font-size: 13px;
+            fill: #24303c;
+        }
+
+        .legend-title {
+            font-size: 13px;
+            font-weight: 700;
+            fill: #24303c;
+        }
+
+        .dev-item text {
+            font-size: 12px;
+            fill: #24303c;
+        }
+
+        .legend-note {
+            font-size: 12px;
+            fill: #6b7683;
+        }
+
+        .city-bar {
+            cursor: pointer;
+        }
+
+        .justification {
+            max-width: 46em;
+            line-height: 1.7;
+        }
+
+        .encoding-table {
+            border-collapse: collapse;
+            margin: 1em 0 1.5em;
+        }
+
+        .encoding-table th,
+        .encoding-table td {
+            border: 1px solid #d8dee6;
+            padding: 6px 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .encoding-table th {
+            background: #f4f6f9;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>Lab 2</h1>
-  <p>Lab 2 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+
+<header>
+    <h1>STATS 401</h1>
+    <p>Data Acquisition and Visualization</p>
+</header>
+
+<nav class="lab-nav">
+    <a href="../lab1/index.html">Lab 1</a>
+    <a href="../lab2/index.html">Lab 2</a>
+    <a href="../lab3/index.html">Lab 3</a>
+    <a href="../lab4/index.html">Lab 4</a>
+    <a href="../lab5/index.html">Lab 5</a>
+    <a href="../lab6/index.html">Lab 6</a>
+    <a href="../lab7/index.html">Lab 7</a>
+    <a href="../lab8/index.html">Lab 8</a>
+    <a href="../lab9/index.html">Lab 9</a>
+    <a href="../lab10/index.html">Lab 10</a>
+</nav>
+
+<main>
+    <h2>Lab 2: Multivariate Visualization with D3</h2>
+
+    <p>
+        Twelve cities described by four variables: population, average
+        temperature, development level, and region. Hover over a bar to see
+        the exact values for that city.
+    </p>
+
+    <div id="chart"></div>
+    <div id="tooltip" class="tooltip"></div>
+
+    <h3>Design Justification</h3>
+
+    <table class="encoding-table">
+        <tr>
+            <th>Variable</th>
+            <th>Type</th>
+            <th>Visual channel</th>
+        </tr>
+        <tr>
+            <td>population</td>
+            <td>Ratio</td>
+            <td>Bar length</td>
+        </tr>
+        <tr>
+            <td>temp_c</td>
+            <td>Interval</td>
+            <td>Bar colour (blue to red)</td>
+        </tr>
+        <tr>
+            <td>development_level</td>
+            <td>Ordinal</td>
+            <td>Bar thickness</td>
+        </tr>
+        <tr>
+            <td>region</td>
+            <td>Nominal</td>
+            <td>Grouping into panels</td>
+        </tr>
+    </table>
+
+    <div class="justification">
+        <p>
+            I chose a grouped bar chart rather than a scatterplot because only
+            one of the four variables is a true ratio quantity. Population is
+            ratio-scaled, so it has a meaningful zero and can be read as a
+            length starting from the origin; length is the channel people
+            compare most accurately, which makes population the primary
+            message of the chart. Average temperature is interval data, where
+            differences matter but zero is arbitrary, so a diverging
+            blue-to-red colour ramp fits it well: readers judge relative
+            warmth without being asked to treat 0&nbsp;&deg;C as "nothing".
+            Development level is ordinal with only three steps, so I mapped it
+            to bar thickness, a channel that carries an obvious order
+            (thin &rarr; thick) but not precise numeric meaning. Region is
+            nominal and unordered, so instead of a colour scheme that would
+            compete with temperature, I split the chart into four labelled
+            panels; grouping shows category membership without implying any
+            ranking.
+        </p>
+        <p>
+            I hope viewers notice that the largest and coolest cities cluster
+            in the West and North, that warm cities in the South are small and
+            mostly low development, and that within every region thicker bars
+            tend to be the longer ones, suggesting population and development
+            level move together. City names and tooltips let individual cities
+            be identified.
+        </p>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="lab2.js"></script>
+
 </body>
 </html>
