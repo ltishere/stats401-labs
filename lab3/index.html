@@ -1,13 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 3</title>
-  <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <title>Lab 3: Web Data Acquisition</title>
+    <style>
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 4px 8px; }
+        th { cursor: pointer; background: #eee; }
+    </style>
 </head>
 <body>
-  <h1>Lab 3</h1>
-  <p>Lab 3 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+    <h2>Lab 3: Web Data Acquisition</h2>
+
+    <p><b>Dataset:</b> Book listings (title, price, star rating, availability)</p>
+    <p><b>Source:</b> <a href="https://books.toscrape.com/">books.toscrape.com</a>,
+       a site built for scraping practice</p>
+    <p><b>Method:</b> HTML scraping with requests + BeautifulSoup,
+       50 pages with 1-second delay between requests</p>
+    <p><b>Records collected:</b> 1,000</p>
+    <p>Click a column heading to sort (click again to reverse).</p>
+
+    <table id="data-table">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="lab3.js"></script>
 </body>
 </html>
