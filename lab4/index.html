@@ -1,13 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 4</title>
-  <link rel="stylesheet" href="../css/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 4: Cleaning Web Data for Visualization</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  :root {
+    --ink: #1c1c1a;
+    --muted: #6b6a65;
+    --rule: #ddd9d2;
+    --paper: #fbfaf8;
+    --neg: #b4451f;
+    --neu: #cbc6bd;
+    --pos: #1b6b50;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 3rem 1.5rem 5rem;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 860px; margin: 0 auto; }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.4rem;
+  }
+
+  .standfirst {
+    max-width: 62ch;
+    color: var(--muted);
+    margin: 0 0 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 3rem 0 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  figure { margin: 0; }
+
+  figcaption {
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  #chart svg { width: 100%; height: auto; display: block; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .legend span::before {
+    content: "";
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-right: 0.4rem;
+    vertical-align: -1px;
+  }
+
+  .legend .neg::before { background: var(--neg); }
+  .legend .neu::before { background: var(--neu); }
+  .legend .pos::before { background: var(--pos); }
+
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 120ms;
+    background: var(--ink);
+    color: #fff;
+    padding: 0.5rem 0.65rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    max-width: 220px;
+    z-index: 10;
+  }
+
+  #tooltip b { font-weight: 600; }
+
+  .analysis { max-width: 68ch; }
+  .analysis p { margin: 0 0 1rem; }
+
+  .loading, .error { color: var(--muted); font-size: 0.9rem; }
+  .error { color: var(--neg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tooltip { transition: none; }
+  }
+</style>
 </head>
 <body>
-  <h1>Lab 4</h1>
-  <p>Lab 4 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+<main>
+
+  <h1>Lab 4: Cleaning Web Data for Visualization</h1>
+  <p class="standfirst">
+    Sentiment of 3,000 tweets from the 20 most-followed accounts on Twitter,
+    estimated with a RoBERTa model fine-tuned on social-media text.
+  </p>
+
+  <figure>
+    <figcaption>
+      Each bar shows how one account's tweets divide across the three sentiment
+      classes. Accounts are ordered by mean sentiment score, printed at the right.
+      Hover a bar for counts.
+    </figcaption>
+    <div id="chart"><p class="loading">Loading data…</p></div>
+    <p class="legend">
+      <span class="neg">Negative</span>
+      <span class="neu">Neutral</span>
+      <span class="pos">Positive</span>
+    </p>
+  </figure>
+
+  <h2>Analysis</h2>
+  <div class="analysis">
+    <p>
+  The dataset contains 52,542 tweets from the 20 most-followed Twitter accounts,
+  with author, timestamp, language, likes and retweets. Cleaning
+  (<code>clean_tweets.py</code>): the <code>id</code> column was stored in
+  scientific notation and had already lost precision, so duplicates were removed
+  on author, timestamp and text instead; latitude, longitude and country were over
+  99% empty and dropped; timestamps were day-first, so the format was forced rather
+  than inferred; HTML entities were unescaped and 5,608 non-English tweets removed,
+  since the model is English-only. From the remaining 46,934 tweets, 3,000 were
+  sampled (seed 42). Sentiment came from
+  <code>cardiffnlp/twitter-roberta-base-sentiment-latest</code>, keeping all three
+  class probabilities and defining
+  <code>sentiment_score = P(positive) − P(negative)</code>. These are
+  model-generated estimates, not ground-truth labels. The chart encodes account
+  vertically and the share of each sentiment class horizontally, ordered by mean
+  score. Two patterns: sentiment is skewed positive almost everywhere (1,855
+  positive against 175 negative), matching accounts built on promotion and thanks;
+  and @cnnbrk is the sole exception at −0.33, the only account whose tweets are
+  more often negative than positive, since breaking-news headlines report disasters
+  in flat language.
+</p>
+  </div>
+
+</main>
+
+<div id="tooltip" role="status" aria-live="polite"></div>
+<script src="lab4.js"></script>
 </body>
 </html>
