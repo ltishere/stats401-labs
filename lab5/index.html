@@ -1,13 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 5</title>
-  <link rel="stylesheet" href="../css/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 5 — Urban Transit Network | STATS 401</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:      #16202A;
+  --ink-soft: #4A5763;
+  --ink-mute: #7E8A95;
+  --rule:     #DCE3E8;
+  --panel:    #F4F7F9;
+  --page:     #FFFFFF;
+  --accent:   #0072B2;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px 96px; }
+
+/* ---- Masthead: a schematic transit strip, not a hero image ---- */
+header.masthead { border-bottom: 1px solid var(--rule); margin-bottom: 44px; }
+.masthead .wrap { padding-top: 56px; padding-bottom: 30px; }
+.course { font-size: 13px; letter-spacing: .04em; color: var(--ink-mute); margin: 0 0 10px; }
+h1 { font-size: 40px; line-height: 1.12; font-weight: 600; margin: 0 0 14px; max-width: 20ch; }
+.standfirst { font-size: 17px; color: var(--ink-soft); max-width: 68ch; margin: 0; }
+
+.strip { display: flex; gap: 3px; margin: 26px 0 0; height: 7px; }
+.strip span { flex: 1; border-radius: 3px; }
+
+/* ---- Sections ---- */
+section { margin-bottom: 64px; scroll-margin-top: 20px; }
+h2 {
+  font-size: 13px; font-weight: 600; letter-spacing: .05em;
+  color: var(--ink-mute); margin: 0 0 6px;
+}
+h3 { font-size: 25px; font-weight: 600; margin: 0 0 16px; }
+h4 { font-size: 13px; font-weight: 600; margin: 0 0 8px; color: var(--ink-soft); }
+p { max-width: 72ch; }
+p.lede { color: var(--ink-soft); }
+
+/* ---- Figure frames ---- */
+figure { margin: 0; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; background: var(--page); }
+.figbar {
+  display: flex; flex-wrap: wrap; gap: 18px; align-items: center;
+  padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--rule);
+  font-size: 13.5px; color: var(--ink-soft);
+}
+.figbar label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+.figbar select, .figbar button {
+  font: inherit; font-size: 13.5px; color: var(--ink);
+  background: var(--page); border: 1px solid #C6D0D8; border-radius: 4px;
+  padding: 4px 8px; cursor: pointer;
+}
+.figbar button:hover, .figbar select:hover { border-color: var(--accent); }
+.figbar button:focus-visible, .figbar select:focus-visible,
+.figbar input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.canvas { padding: 8px 10px; }
+figcaption { padding: 12px 16px; border-top: 1px solid var(--rule); font-size: 13.5px; color: var(--ink-soft); }
+
+.loaderror { padding: 28px; color: #B2182B; }
+
+/* ---- Legends ---- */
+.keys {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 20px 26px; padding: 16px; border-top: 1px solid var(--rule); background: var(--panel);
+}
+.keys ul { list-style: none; margin: 0; padding: 0; }
+.keys li { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+.key-mark { flex: none; }
+
+/* ---- Tooltip ---- */
+#tooltip {
+  position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none;
+  background: var(--ink); color: #F2F6F9; padding: 9px 12px; border-radius: 5px;
+  font-size: 13px; line-height: 1.45; max-width: 260px; z-index: 20;
+  transition: opacity .12s ease;
+}
+#tooltip strong { display: block; margin-bottom: 5px; font-weight: 600; }
+#tooltip dl { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; margin: 0; }
+#tooltip dt { color: #9FB0BE; }
+#tooltip dd { margin: 0; }
+#tooltip .swatch {
+  display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px;
+}
+
+/* ---- Prose blocks ---- */
+.note {
+  border-left: 3px solid var(--accent); padding: 2px 0 2px 16px;
+  color: var(--ink-soft); font-size: 15px; max-width: 70ch;
+}
+dl.mapping { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 18px; max-width: 62ch; }
+dl.mapping dt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; color: var(--ink); }
+dl.mapping dd { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+
+/* ---- Q&A table ---- */
+table.qa { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+table.qa th, table.qa td { text-align: left; vertical-align: top; padding: 12px 14px 12px 0; border-bottom: 1px solid var(--rule); }
+table.qa thead th { font-size: 12.5px; color: var(--ink-mute); font-weight: 600; border-bottom: 1px solid #C6D0D8; }
+table.qa td:first-child { font-weight: 500; width: 27%; }
+table.qa td:nth-child(2) { width: 12%; color: var(--ink-soft); }
+table.qa td:nth-child(3) { width: 25%; color: var(--ink-soft); }
+.verdict { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 3px; background: var(--panel); border: 1px solid var(--rule); color: var(--ink-soft); }
+.fill { background: #FFF3CD; padding: 0 3px; border-radius: 2px; }
+
+/* ---- Check panel ---- */
+details.check { border: 1px solid var(--rule); border-radius: 6px; padding: 0; margin-top: 28px; }
+details.check summary { padding: 12px 16px; cursor: pointer; font-size: 14px; color: var(--ink-soft); }
+details.check[open] summary { border-bottom: 1px solid var(--rule); }
+.check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 18px 16px; }
+.check-grid table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.check-grid th { text-align: left; color: var(--ink-mute); font-weight: 500; border-bottom: 1px solid var(--rule); padding: 3px 8px 3px 0; }
+.check-grid td { padding: 2px 8px 2px 0; border-bottom: 1px solid #EFF3F5; color: var(--ink-soft); }
+
+code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .9em; background: var(--panel); padding: 1px 4px; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .wrap { padding: 0 18px 64px; }
+  h1 { font-size: 30px; }
+  table.qa td:first-child { width: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
 </head>
 <body>
-  <h1>Lab 5</h1>
-  <p>Lab 5 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="course">STATS 401 · Data Acquisition and Visualization · Lab 5</p>
+    <h1>Fifty stations, two ways of looking at them</h1>
+    <p class="standfirst">
+      The same synthetic urban transit network drawn twice — once as a force-directed node-link
+      diagram, once as an adjacency matrix — to see which questions each layout answers well.
+    </p>
+    <div class="strip">
+      <span style="background:#333F48"></span>
+      <span style="background:#0072B2"></span>
+      <span style="background:#009E73"></span>
+      <span style="background:#E69F00"></span>
+      <span style="background:#CC79A7"></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- =========================================================== -->
+<section id="sec-data">
+  <h2>1 — Dataset</h2>
+  <h3>A synthetic transit system for a medium-sized city</h3>
+  <p id="dataset-facts" class="lede">Loading the station and route tables…</p>
+  <p>
+    Each station carries a district, a daily passenger volume, and a functional role — local,
+    transfer, or terminal. Each route records how long the direct journey takes and which service
+    runs it. The network is undirected: a route between two stations means passengers can travel
+    directly between them in either direction without changing service.
+  </p>
+  <p class="note">
+    The data is synthetic and built for visualization practice. Layout position carries no
+    geography — two stations sitting close together in the diagram are connected, not neighbours
+    on a map.
+  </p>
+</section>
+
+<!-- =========================================================== -->
+<section id="sec-nodelink">
+  <h2>2 — Node-link diagram</h2>
+  <h3>Where the network's shape lives</h3>
+  <figure>
+    <div class="figbar">
+      <label><input type="checkbox" id="toggle-labels" checked> Station names</label>
+      <button id="reheat" type="button">Re-run layout</button>
+      <span>Drag any station to pin it; hover to isolate its neighbours.</span>
+    </div>
+    <div class="canvas"><div id="network"></div></div>
+    <div class="keys">
+      <div id="key-district"></div>
+      <div id="key-type"></div>
+      <div id="key-size"></div>
+      <div id="key-route"></div>
+      <div id="key-time"></div>
+    </div>
+    <figcaption>
+      Hovering a station also highlights its row and column in the adjacency matrix below.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- =========================================================== -->
+<section id="sec-nodelink-design">
+  <h2>3 — Node-link design</h2>
+  <h3>Why these channels</h3>
+
+  <dl class="mapping">
+    <dt>district</dt><dd>node fill colour</dd>
+    <dt>daily_passengers</dt><dd>node area</dd>
+    <dt>station_type</dt><dd>node shape</dd>
+    <dt>travel_time_min</dt><dd>edge length and stroke width</dd>
+    <dt>route_type</dt><dd>stroke colour and dash pattern</dd>
+  </dl>
+
+  <p>
+    District is the variable a reader scans for first, so it gets colour, the strongest categorical
+    channel; five hues from the Okabe–Ito set stay separable under common colour-vision
+    deficiencies. Passenger volume is a magnitude, so it maps to node <em>area</em> rather than
+    radius, keeping perceived size proportional to ridership. Station type has only three values and
+    is a secondary label, so shape carries it: circle for local, square for transfer, triangle for
+    terminal.
+  </p>
+  <p>
+    Travel time needed the most thought. Copying the tutorial and reading it as edge "strength"
+    would mislead — a long journey is a cost, not a close relationship. So travel time drives the
+    simulation's ideal edge length: slow connections settle far apart, fast ones pull their stations
+    together, which matches how a rider experiences the network. Stroke width repeats the same
+    value so the slowest links stay findable in a dense region. Service type uses colour plus a dash
+    pattern, redundantly, because thin strokes lose hue quickly.
+  </p>
+  <p>
+    Interaction covers what a static layout cannot. Dragging lets a reader pull a tangled cluster
+    apart and pin it. Hovering dims everything except a station and its direct neighbours, which is
+    the only reliable way to trace adjacency once edges cross. Tooltips carry the exact figures, so
+    no encoding has to be read precisely off the page.
+  </p>
+</section>
+
+<!-- =========================================================== -->
+<section id="sec-matrix">
+  <h2>4 — Adjacency matrix</h2>
+  <h3>The same network, without the crossings</h3>
+  <figure>
+    <div class="figbar">
+      <label>Order rows and columns by
+        <select id="matrix-order">
+          <option value="district">District, then type, then volume</option>
+          <option value="type">Station type, then district</option>
+          <option value="degree">Number of connections</option>
+          <option value="passengers">Passenger volume</option>
+          <option value="id">Station id (unordered baseline)</option>
+        </select>
+      </label>
+      <span id="matrix-order-note"></span>
+    </div>
+    <div class="canvas"><div id="matrix"></div></div>
+    <div class="keys">
+      <div id="key-cell"></div>
+      <div id="key-opacity"></div>
+      <div id="key-rowbar"></div>
+    </div>
+    <figcaption>
+      Every pair of stations appears twice, mirrored across the diagonal. Hovering a cell or a
+      station name highlights the same station in the diagram above.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- =========================================================== -->
+<section id="sec-matrix-design">
+  <h2>5 — Matrix design</h2>
+  <h3>Ordering is the encoding</h3>
+
+  <dl class="mapping">
+    <dt>row / column</dt><dd>station</dd>
+    <dt>filled cell</dt><dd>direct connection</dd>
+    <dt>cell colour</dt><dd>route_type</dd>
+    <dt>cell opacity</dt><dd>travel_time_min</dd>
+    <dt>label colour, tick, block rule</dt><dd>district</dd>
+    <dt>glyph beside label</dt><dd>station_type</dd>
+    <dt>margin bar</dt><dd>daily_passengers</dd>
+  </dl>
+
+  <p>
+    A matrix with an arbitrary row order shows only that connections exist. Sorting is what turns it
+    into an argument, so the default order groups stations by district, then by station type, then by
+    descending volume, and draws a rule at each district boundary. Cells inside a block are
+    within-district connections and cells outside it are transfers between districts, so the balance
+    between the two becomes a matter of looking rather than counting. The dropdown re-sorts to
+    degree or volume, which makes the top-left corner fill up with the busiest and best-connected
+    stations.
+  </p>
+  <p>
+    All five attributes survive the translation. Link attributes ride on the cells themselves —
+    colour for service, opacity for journey length — while station attributes move out to the
+    margins, where a bar gives ridership and a small glyph gives the station's role. Keeping node
+    attributes off the cells avoids stacking two meanings onto one square. The cost is real: the
+    matrix is mirrored, so half of it is redundant, and it says nothing about paths or
+    connectivity.
+  </p>
+</section>
+
+<!-- =========================================================== -->
+<section id="sec-questions">
+  <h2>6 — Six network questions</h2>
+  <h3>What each view can and cannot answer</h3>
+
+  <!-- ==========================================================
+       FILL IN THE LAST COLUMN YOURSELF.
+       Open both views, hover around, and write what you SAW.
+       The "Read-off figures" panel at the bottom of the page is
+       only for checking that what you wrote is right.
+       Delete the <span class="fill"> markers when done.
+       ========================================================== -->
+
+  <table class="qa">
+    <thead>
+      <tr><th>Question</th><th>View used</th><th>What supports the answer</th><th>Observation</th></tr>
+    </thead>
+    <tbody>
+  <tr>
+    <td>1. Which stations appear central? <span class="verdict">partially</span></td>
+    <td>Node-link</td>
+    <td>Hovering dims everything but a station and its direct neighbours, so the surviving edges can be counted; central stations also sit in the interior of the layout rather than on a dangling branch.</td>
+    <td>No station stands out as a hub. The best-connected keep only three edges when hovered, and at least eight stations tie at that count — among them Stations 38, 34, 33, 31, 29, 25, 23 and 21. They do sit in the interior rather than on a branch, but the gap between a three-edge and a two-edge station is small enough that hovering, not scanning, is what makes it visible.</td>
+  </tr>
+  <tr>
+    <td>2. Which districts are strongly connected? <span class="verdict">answered well</span></td>
+    <td>Matrix</td>
+    <td>District ordering with block rules turns district pairs into rectangles; the density of filled cells in an off-diagonal rectangle is the number of connections between those two districts.</td>
+    <td>With the matrix grouped by district, the five diagonal blocks are almost entirely empty — only Central holds any within-district connections, and the other four districts have none. Nearly every filled cell therefore sits in an off-diagonal block, meaning almost all direct connections cross a district boundary. The densest pair is East × South, followed by Central × North and East × West, while East × North and East × Central are completely empty. Geographic district and network topology are essentially decoupled here, which the block ordering makes visible immediately but a list of routes would not.</td>
+  </tr>
+  <tr>
+    <td>3. Where do transfer and terminal stations sit? <span class="verdict">not easily</span></td>
+    <td>Both</td>
+    <td>Shape in the diagram shows role against layout position; the glyph column beside the matrix labels shows role against connection count once the rows are sorted by station type.</td>
+    <td>Both encodings read clearly, but neither reveals a pattern. Triangles (terminal) are not confined to the edge of the layout and squares (transfer) are not concentrated where districts meet — Stations 34 and 31 are terminals yet carry three connections each, more than most transfer stations. Sorting the matrix by station type produces three blocks of similar density. In this dataset a station's functional role is independent of its topological position, and my design cannot show a structure that is not there.</td>
+  </tr>
+  <tr>
+    <td>4. Which stations carry the most passengers? <span class="verdict">answered well</span></td>
+    <td>Both</td>
+    <td>Node area gives a rough ranking in the diagram; re-sorting the matrix by passenger volume turns the margin bars into a directly comparable ladder.</td>
+    <td>Node area gives the gist, but comparing sizes across three different shapes is unreliable — a triangle and a square of equal area do not look equally large. Re-sorting the matrix by volume fixes this: the margin bars stack into a clean descending ladder with Stations 50, 49, 48, 47, 46, 45, 44 and 43 at the top. Their rows are also nearly empty, so the busiest stations carry only zero or one direct connection each — volume and connectivity are unrelated here.</td>
+  </tr>
+  <tr>
+    <td>5. Where are the longest journeys? <span class="verdict">answered well</span></td>
+    <td>Both</td>
+    <td>Travel time sets both the stroke width and the simulation's ideal edge length, so slow routes are the thickest and longest lines; cell opacity in the matrix confirms the ranking.</td>
+    <td>The heaviest lines in the diagram are Station 7 – Station 31, Station 18 – Station 34 and Station 29 – Station 50, and the darkest matrix cells confirm all three. Width alone is not precise, though: two other links I judged thick by eye turned out not to be among the six slowest, so the matrix and its tooltips were needed to settle the order. All of the slowest connections cross a district boundary, which follows from question 2.</td>
+  </tr>
+  <tr>
+    <td>6. Are service types concentrated anywhere? <span class="verdict">partially</span></td>
+    <td>Matrix</td>
+    <td>Cell colour against the district blocks shows whether one service dominates a district pair — far easier than tracking stroke colour through crossing edges.</td>
+    <td>No block is dominated by a single service: Metro, Express and Shuttle appear in roughly equal numbers and are almost entirely cross-district, with the only within-district routes being the two Shuttle links inside Central. A few pairs do appear to lack a service altogether, for example no Metro cells in the Central × West block. Reading this is harder than it should be — at ten pixels the navy of Metro and the grey of Shuttle are easy to confuse, so the pattern is visible but needs hovering to confirm.</td>
+  </tr>
+</tbody>
+  </table>
+
+  <details class="check">
+    <summary>Read-off figures — for checking the answers above, not a substitute for them</summary>
+    <div class="check-grid">
+      <div><h4>Most connections</h4><div id="check-degree"></div></div>
+      <div><h4>Highest volume</h4><div id="check-volume"></div></div>
+      <div><h4>Slowest connections</h4><div id="check-longest"></div></div>
+      <div><h4>Connections by district pair</h4><div id="check-pairs"></div></div>
+      <div><h4>By station type</h4><div id="check-types"></div></div>
+      <div><h4>By service type</h4><div id="check-routes"></div></div>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<div id="tooltip"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="lab5.js"></script>
 </body>
 </html>
