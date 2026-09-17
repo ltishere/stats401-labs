@@ -1,13 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 6</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="utf-8">
+  <title>Lab 6 — GDP Treemaps</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: #f7f6f2; color: #222;
+      margin: 0; padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { font-size: 28px; margin: 0 0 6px; }
+    .subtitle { color: #666; margin: 0 0 20px; }
+    h2 { font-size: 18px; margin: 36px 0 4px; }
+    .note { color: #777; font-size: 13px; margin: 0 0 10px; }
+    .card {
+      background: white; border-radius: 10px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .card svg { width: 100%; height: auto; display: block; }
+    .legend { display: flex; gap: 22px; font-size: 14px; margin-bottom: 8px; }
+    .legend span.swatch {
+      display: inline-block; width: 14px; height: 14px;
+      border-radius: 3px; margin-right: 6px; vertical-align: -2px;
+    }
+    .tooltip {
+      position: absolute; opacity: 0; pointer-events: none;
+      background: rgba(30,30,30,0.92); color: white;
+      padding: 8px 12px; border-radius: 6px; font-size: 13px; line-height: 1.5;
+    }
+    .description { line-height: 1.7; }
+  </style>
 </head>
 <body>
-  <h1>Lab 6</h1>
-  <p>Lab 6 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+  <div class="container">
+    <h1>World GDP by Continent, Area, and Country</h1>
+    <p class="subtitle">Rectangle area = GDP (billion USD) · Color = GDP status</p>
+
+    <div id="legend" class="legend"></div>
+
+    <h2>Treemap 1 — Squarify</h2>
+    <p class="note">Rectangles are kept close to square.</p>
+    <div id="treemap-squarify" class="card"></div>
+
+    <h2>Treemap 2 — Slice-Dice</h2>
+    <p class="note">Space is split horizontally and vertically in alternation by level.</p>
+    <div id="treemap-slicedice" class="card"></div>
+
+    <h2>Design Description</h2>
+    <p class="description">We encode GDP amount with rectangle area because area naturally shows part-to-whole relationships, making it easy to see that countries like the United States and China dominate world GDP.   GDP status is a categorical variable with only three values, so we encode it with hue: teal for Increase, gray for Unchanged, and coral for Decrease.   The muted palette avoids a red–green contrast and keeps large blocks easy on the eyes.   The hierarchy is shown through nesting: countries sit inside areas, and areas inside continents, with bold continent titles and smaller area labels.
+
+The two tiling methods trade off different kinds of readability.   Squarify produces near-square rectangles, so areas are easy to compare and most labels fit.   Slice-Dice alternates horizontal and vertical cuts by depth, which makes the hierarchy very clear, but small continents such as Africa and Oceania become thin strips that are hard to compare and too narrow for labels, so users must rely on tooltips.</p>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab6.js"></script>
 </body>
 </html>
