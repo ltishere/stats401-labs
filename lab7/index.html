@@ -1,13 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 7</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="utf-8">
+  <title>Lab 7 — Temporal Commercial Network</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: #f7f6f2; color: #222; margin: 0; padding: 32px 20px;
+    }
+    .container { max-width: 1060px; margin: 0 auto; }
+    h1 { font-size: 26px; margin: 0 0 4px; }
+    .subtitle { color: #666; margin: 0 0 20px; }
+    h2 { font-size: 18px; margin: 32px 0 10px; }
+
+    .card {
+      background: white; border-radius: 10px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* 控制条 */
+    .controls {
+      display: flex; align-items: center; gap: 14px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .controls button {
+      font-size: 14px; padding: 7px 16px; border-radius: 6px;
+      border: 1px solid #ccc; background: white; cursor: pointer;
+    }
+    .controls button:hover { background: #f0efe9; }
+    #time-slider { flex: 1; min-width: 240px; }
+    #day-label { font-size: 16px; font-weight: 700; min-width: 190px; }
+
+    /* 统计 */
+    .stats { display: flex; gap: 28px; margin-bottom: 12px; font-size: 14px; }
+    .stats .value { font-size: 19px; font-weight: 700; display: block; }
+    .stats .label { color: #777; font-size: 12px; }
+
+    /* 图例 */
+    .legend { display: flex; gap: 26px; flex-wrap: wrap; font-size: 13px; margin-top: 14px; }
+    .legend .item { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .legend .swatch { width: 13px; height: 13px; border-radius: 50%; }
+
+    .tooltip {
+      position: absolute; opacity: 0; pointer-events: none;
+      background: rgba(30,30,30,0.92); color: white;
+      padding: 8px 12px; border-radius: 6px; font-size: 13px; line-height: 1.5;
+    }
+    svg { width: 100%; height: auto; display: block; }
+    .description { line-height: 1.75; }
+  </style>
 </head>
 <body>
-  <h1>Lab 7</h1>
-  <p>Lab 7 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+  <div class="container">
+    <h1>Temporal Commercial Network (60 Days)</h1>
+    <p class="subtitle">
+      Node size = current daily transaction volume · Color = sector · Link width = amount
+    </p>
+
+    <div class="card">
+      <div class="controls">
+        <button id="play">▶ Play</button>
+        <button id="pause">⏸ Pause</button>
+        <button id="reset">↺ Reset</button>
+        <input type="range" id="time-slider" min="1" max="60" value="1" step="1">
+        <span id="day-label">Day 1</span>
+      </div>
+
+      <div class="stats">
+        <div><span class="value" id="stat-companies">0</span><span class="label">Active companies</span></div>
+        <div><span class="value" id="stat-links">0</span><span class="label">Active links</span></div>
+        <div><span class="value" id="stat-value">$0</span><span class="label">Total value</span></div>
+        <div><span class="value" id="stat-cross">0%</span><span class="label">Cross-region links</span></div>
+      </div>
+
+      <div id="network"></div>
+
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <h2>Temporal Network Questions</h2>
+    <div class="description" id="answers">
+      <p><strong>1. How does overall network connectivity change across the 60 days?</strong><br>
+      Connectivity is stable for the first 40 days at about 5.5 active links per day, then rises
+      sharply in the final third to 7.1 links per day in days 41–50 and 7.4 in days 51–60. Daily
+      transaction value grows even faster, from roughly $77,000 per day in days 1–20 to about
+      $148,000 in days 51–60. The network therefore does not simply add links: existing and new
+      relationships also carry much larger amounts, which is visible as both denser edges and
+      consistently larger nodes late in the animation.</p>
+
+      <p><strong>2. Which companies become more central or commercially active over time?</strong><br>
+      Comparing total volume in days 1–20 with days 41–60, Ion Systems grows the most
+      (about $263,000 to $1,097,000) followed by Cedar Retail (about $252,000 to $902,000).
+      Both more than quadruple and become the largest nodes in the later frames. Apex Textiles
+      and Fusion Electronics also grow substantially. BlueRiver Logistics is the only company
+      that does not grow (about $325,000 to $323,000), so its relative position in the network
+      declines even though its own activity is unchanged.</p>
+
+      <p><strong>3. Are there periods when the network consists of relatively separate clusters?</strong><br>
+      Yes. With only twelve companies and around five active links per day, almost every day up
+      to day 41 breaks into two or three disconnected groups rather than one connected component.
+      Day 1 is typical: six active companies form three isolated pairs with no path between them.
+      A few days are exceptions — on days 4 and 16 the active companies form a single connected
+      cluster — but these are rare in the early period. After day 41 the higher link count makes
+      a single connected component much more common, and fragmentation largely disappears.</p>
+  
+
+      <p><strong>4. Which commercial relationships appear, disappear, or become stronger over time?</strong><br>
+      Several relationships recur throughout the 60 days and visibly thicken. Ion Systems
+      repeatedly trades with Fusion Electronics and Juniper Stores; Fusion Electronics also
+      maintains recurring ties with Granite Wholesale and Delta Components; and Cedar Retail
+      trades regularly with Evergreen Foods and BlueRiver Logistics. In each case the edges
+      reappear across many frames and their stroke width grows, indicating rising transaction
+      amounts rather than merely more frequent contact. Because link width encodes amount, these
+      strengthening relationships are easy to follow, while the orange flash on entry makes newly
+      formed links stand out and the fade-out marks relationships that lapse on a given day.</p>
+
+      <p><strong>5. Does the network become more or less cross-regional over time?</strong><br>
+      The network is already strongly cross-regional and becomes more so. Cross-region links
+      make up 62–65% of activity through the first 40 days, then rise to 73% in days 41–50 and
+      72% in days 51–60. Dashed edges dominate the later frames, indicating that the growth in
+      connectivity comes mainly from new ties between Asia, North America and Europe rather
+      than from denser within-region trade.</p>
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab7.js"></script>
 </body>
 </html>
