@@ -1,13 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 8</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="utf-8">
+  <title>Lab 8 — Exploring the DKU Undergraduate Bulletin</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: #f7f6f2; color: #222; margin: 0; padding: 32px 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 28px; margin: 0 0 6px; }
+    h2 { font-size: 20px; margin: 40px 0 10px; }
+    h3 { font-size: 15px; margin: 0 0 8px; }
+    p { line-height: 1.65; }
+    .subtitle { color: #666; margin: 0 0 10px; }
+    .note { font-size: 12px; color: #777; line-height: 1.5; }
+    .card {
+      background: white; border-radius: 10px; padding: 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 16px;
+    }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 12px; }
+    .stat .value { font-size: 24px; font-weight: 700; display: block; }
+    .stat .label { font-size: 12px; color: #777; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .map-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(280px, 1fr); gap: 16px; }
+    @media (max-width: 900px) { .two-col, .map-layout { grid-template-columns: 1fr; } }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .controls input, .controls select, .controls button {
+      font-size: 13px; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; background: white;
+    }
+    .controls input { width: 220px; }
+    .controls select { max-width: 280px; }
+    .controls button { cursor: pointer; }
+    #match-count { font-size: 13px; color: #666; }
+
+    #detail-panel { font-size: 13px; line-height: 1.55; max-height: 680px; overflow-y: auto; }
+    #detail-panel .meta { color: #666; }
+    #detail-panel .passage { background: #f7f6f2; padding: 10px 12px; border-radius: 6px; margin: 10px 0 14px; }
+    .nb { padding: 8px 10px; border-left: 4px solid #ccc; margin: 6px 0; cursor: pointer; background: #fafafa; border-radius: 0 4px 4px 0; }
+    .nb:hover { background: #f0efe9; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; margin-top: 10px; }
+    .legend .item { display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap; }
+    .legend .item.dim { opacity: 0.35; }
+    .swatch { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
+    .tooltip {
+      position: absolute; opacity: 0; pointer-events: none; z-index: 10;
+      background: rgba(30,30,30,0.92); color: white; padding: 8px 12px;
+      border-radius: 6px; font-size: 12px; line-height: 1.5; max-width: 320px;
+    }
+    table.topics { border-collapse: collapse; width: 100%; font-size: 13px; }
+    table.topics th, table.topics td { border-bottom: 1px solid #eee; padding: 6px 8px; text-align: left; vertical-align: top; }
+    svg { display: block; max-width: 100%; height: auto; }
+  </style>
 </head>
 <body>
-  <h1>Lab 8</h1>
-  <p>Lab 8 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+<div class="container">
+  <h1>Exploring the DKU Undergraduate Bulletin</h1>
+  <p class="subtitle">Formal document structure vs. semantic structure · STATS 401 Lab 8</p>
+
+  <h2>1. Bulletin / Corpus Description</h2>
+  <div class="card">
+    <p><strong>Source:</strong> <em>Bulletin of Duke Kunshan University Undergraduate Instruction</em>,
+      2021–2022 edition (V2021-22), 400 pages. Official DKU PDF:
+      <a href="https://dku-web-admissions.s3.cn-north-1.amazonaws.com.cn/dkumain/files/V2021-22_DKU_UG_Bulletin.pdf">link</a>.
+      Accessed: <strong>2026.9.22</strong>.</p>
+    <p><strong>Processing:</strong> Text was extracted with PyMuPDF. Chapter, section and subsection labels
+      come from the PDF's built-in bookmarks (5 levels, 1,142 entries); each text block was assigned to the
+      nearest preceding heading on the page. Paragraphs split across pages were merged, standalone page
+      numbers and heading lines were removed, passages over 220 words were split at sentence boundaries,
+      and passages under 12 words (course codes, credit lines, table cells, calendar fragments) and exact
+      duplicates were dropped.</p>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <h2>2. Corpus Overview</h2>
+  <div class="two-col">
+    <div class="card"><h3>Passages by chapter</h3><div id="chapter-chart"></div>
+      <p class="note">Hover a bar for the average passage length.</p></div>
+    <div class="card"><h3>Top 20 terms (stop words removed)</h3><div id="terms-chart"></div></div>
+  </div>
+
+  <h2>3. Semantic Embedding Map</h2>
+  <div class="card">
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search bulletin (e.g. credit)">
+      <select id="section-filter"></select>
+      <select id="topic-filter"></select>
+      <button id="reset">Reset</button>
+      <span id="match-count"></span>
+    </div>
+    <div class="map-layout">
+      <div>
+        <div id="map"></div>
+        <p class="note">Each point is one passage. Position = UMAP projection of its sentence embedding
+          (the axes have no meaning; nearby points are semantically similar) · Color = semantic topic ·
+          Size = passage length. Scroll to zoom, drag to pan. Click a point to see its details and its
+          5 nearest semantic neighbors (dashed lines). Click a legend item to filter by topic.</p>
+        <div class="legend" id="topic-legend"></div>
+      </div>
+      <div id="detail-panel"><p class="note">Click a passage on the map to see its details.</p></div>
+    </div>
+  </div>
+
+  <h2>4. Topic × Bulletin Section Matrix</h2>
+  <div class="card">
+    <p class="note">Rows = formal bulletin sections (small chapters as one row; the large Part 6 and
+      Part 10 are split into their own sections). Columns = semantic topics. Cell color = share of that
+      section's passages belonging to the topic; number = passage count. <strong>Click a cell</strong>
+      to highlight its passages on the map; click a row or column label to filter by section or topic.
+      Selecting a point on the map outlines its cell here (dashed).</p>
+    <div id="matrix-status" class="note" style="min-height:18px; margin-bottom:6px"></div>
+    <div id="matrix" style="overflow-x:auto"></div>
+  </div>
+  <h2>5. Semantic Topics and Method</h2>
+  <div class="card">
+    <p><strong>Embeddings.</strong> Each passage was encoded with the sentence-transformers model
+      <code>all-MiniLM-L6-v2</code> into a 384-dimensional vector and L2-normalized, so cosine similarity
+      equals the dot product. Text was only whitespace-normalized before embedding (no stop-word removal or
+      lemmatization).</p>
+    <p><strong>Projection.</strong> UMAP (<code>n_components=2, n_neighbors=15, min_dist=0.15,
+      metric="cosine", random_state=401</code>) reduces the embeddings to 2D for display only.</p>
+    <p><strong>Clustering.</strong> K-means (<code>random_state=401, n_init=10</code>) was run on the original
+      384-dimensional embeddings, not on the UMAP coordinates. K was chosen by comparing cosine silhouette
+      scores for K = 6–16 (all between 0.085 and 0.107, highest at K = 15) together with manual inspection:
+      K = 12 left registration, study-away and student-service passages merged with unrelated content, while
+      K = 15 separated them into interpretable policy topics.</p>
+    <p><strong>Labeling.</strong> Each topic was labeled by reading the four passages closest to its centroid
+      alongside its top class-based TF-IDF terms (unigrams and bigrams, English stop words plus corpus-wide
+      words such as "students" and "course" removed).</p>
+    <p><strong>Neighbors and typicality.</strong> The five nearest neighbors of each passage are computed by
+      cosine similarity in the full 384-dimensional space. "Section typicality" is the cosine similarity
+      between a passage and the mean embedding of its formal section.</p>
+    <table class="topics" id="topic-table"></table>
+  </div>
+
+  <h2>6. Semantic Findings</h2>
+  <div class="card">    <p><strong>1. What are the major semantic topics?</strong><br>
+      The 15 topics fall into two families. Nine are disciplinary and come almost entirely from Part 10
+      (majors and course descriptions): Physical Education & Sports; Biology & Chemistry; Language Learning;
+      Math, Computer Science & Data Science; Society, Culture & Global Humanities; Politics, Economics &
+      Behavior; Environment & Global Health; Media & Arts; and Asia Studies. Six are institutional: Fees,
+      Aid & Student Services; Grading & Placement Credit; Degree Credits, Matriculation & Transfer;
+      Registration, Leave & Academic Calendar; Major Requirement Lists & Electives; and Interdisciplinary
+      Seminars & Advising. Because course descriptions make up 651 of the 1,157 passages, disciplinary topics
+      occupy most of the map, while policy topics form a separate region.</p>
+
+    <p><strong>2. Which topics appear across multiple formal sections?</strong><br>
+      Degree Credits, Matriculation & Transfer is the most widely distributed topic: it appears in 21 of the
+      25 matrix rows, from General Information and The Curriculum to Study Away and Useful Contacts.
+      Registration, Leave & Academic Calendar appears in 14 rows and Fees, Aid & Student Services in 12,
+      spanning Parts 4–9. Credit and enrollment rules are therefore not confined to the Academic Procedures
+      chapter but are restated throughout the bulletin. By contrast, the disciplinary topics are concentrated
+      in the two Part 10 rows.</p>
+
+    <p><strong>3. Which formal sections contain the most semantically diverse content?</strong><br>
+      Measured by the normalized entropy of each section's topic distribution, Course Descriptions (14 of 15
+      topics, entropy 0.89) and Majors (11 topics, 0.81) are the most diverse, as expected for sections that
+      describe every discipline. Among policy sections, The Curriculum (6 topics, 0.57), Student Affairs and
+      Campus Life (0.56) and Admission, Scholarships and Financial Aid (0.55) are the most mixed. The least
+      diverse are Transfer of Work Taken Elsewhere and the Academic Calendar, which each fall entirely into a
+      single topic.</p>
+
+    <p><strong>4. Which passages from different sections are semantically similar?</strong><br>
+      The nearest-neighbor view reveals repeated policy text. The rule that students may receive at most
+      40 credits taken elsewhere appears both in Transfer of Work Taken Elsewhere (Part 6) and in Career
+      Services, Study Away, and Research Opportunities (Part 8), with a cosine similarity of 0.92. A passage
+      on medical course withdrawal (Undergraduate Course Load) closely matches one on medical leave of
+      absence (Changes in Status, 0.90), and the disclaimer that not every listed course is offered every
+      term is repeated in both Majors and Course Descriptions (0.89). These pairs show where the same
+      concept is split across the bulletin's formal structure.</p>
+
+    <p><strong>6. Where do "credit", "graduation", "registration" and "academic integrity" occur?</strong><br>
+      "Credit" is the most scattered concept: 164 passages across 12 topics and 18 sections, mainly Grading &
+      Placement Credit, Major Requirement Lists, and Degree Credits & Transfer, so it forms several separate
+      regions on the map rather than one. "Graduation" appears in 32 passages across 5 topics and 12 sections.
+      "Registration" is much more concentrated: 9 passages in only 2 topics, mostly Registration, Leave &
+      Academic Calendar. The exact phrase "academic integrity" appears in only 3 passages, and the Academic
+      Integrity section itself (5 passages) is split across four topics, so the concept never forms its own
+      semantic cluster.</p></div>
+
+  <h2>7. Design Description</h2>
+  <div class="card">    <p><strong>Embeddings and projection.</strong> Each of the 1,157 passages was encoded with the
+      all-MiniLM-L6-v2 sentence-transformer into a normalized 384-dimensional vector. UMAP (cosine metric,
+      15 neighbors) projects these vectors to 2D for display only; clustering, nearest neighbors and section
+      typicality are all computed in the full embedding space, so the map is an approximate picture of
+      semantic relationships rather than their source.</p>
+
+    <p><strong>Topics.</strong> K-means with K = 15 was chosen by comparing silhouette scores and inspecting
+      the clusters by hand. Each topic was labeled after reading the passages closest to its centroid
+      together with its top class-based TF-IDF terms.</p>
+
+    <p><strong>Encodings.</strong> On the map, position shows semantic similarity, hue shows topic (a
+      categorical variable), and point area shows passage length. In the matrix, rows follow the bulletin's
+      own order, and cell color encodes each topic's share of a section rather than raw counts, so small
+      policy sections stay readable next to the 651-passage Course Descriptions row; exact counts are
+      printed in the cells.</p>
+
+    <p><strong>Coordination.</strong> All controls write to one shared state, so search, section and topic
+      filters combine instead of overwriting each other. Clicking a matrix cell highlights its passages on
+      the map, selecting a point outlines its cell in the matrix, and search results are summarized in the
+      matrix as matching counts per cell. The detail panel lists each passage's five nearest neighbors and
+      flags those from a different section, which is how repeated rules such as the 40-credit transfer cap
+      were found.</p>
+
+    <p><strong>Findings.</strong> Together, the views show that the bulletin's formal structure separates
+      academic disciplines cleanly but scatters credit and enrollment rules across many chapters.</p></div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="lab8.js"></script>
 </body>
 </html>

@@ -1,0 +1,411 @@
+{
+  "stats": {
+    "raw_passages": 3430,
+    "clean_passages": 1157,
+    "avg_words": 76.9,
+    "n_chapters": 12,
+    "n_sections": 79,
+    "n_clusters": 15
+  },
+  "chapters": [
+    {
+      "short": "P1 \u00b7 General Information",
+      "passages": 17,
+      "avg_words": 100.4
+    },
+    {
+      "short": "P2 \u00b7 A Liberal Arts Education at Duke Kunshan University",
+      "passages": 6,
+      "avg_words": 104.5
+    },
+    {
+      "short": "P3 \u00b7 The Curriculum",
+      "passages": 47,
+      "avg_words": 80.7
+    },
+    {
+      "short": "P4 \u00b7 Admission, Scholarships and Financial Aid",
+      "passages": 20,
+      "avg_words": 41.2
+    },
+    {
+      "short": "P5 \u00b7 Financial Information",
+      "passages": 27,
+      "avg_words": 52.6
+    },
+    {
+      "short": "P6 \u00b7 Academic Procedures and Information",
+      "passages": 171,
+      "avg_words": 89.2
+    },
+    {
+      "short": "P7 \u00b7 Academic Advising and Support",
+      "passages": 11,
+      "avg_words": 90.0
+    },
+    {
+      "short": "P8 \u00b7 Career Services, Study Away, and Research Opportunities",
+      "passages": 26,
+      "avg_words": 88.3
+    },
+    {
+      "short": "P9 \u00b7 Student Affairs and Campus Life",
+      "passages": 31,
+      "avg_words": 81.6
+    },
+    {
+      "short": "P10 \u00b7 Majors and Courses",
+      "passages": 777,
+      "avg_words": 75.8
+    },
+    {
+      "short": "P11 \u00b7 Academic Calendar 2021-22",
+      "passages": 21,
+      "avg_words": 25.5
+    },
+    {
+      "short": "P12 \u00b7 Useful Contacts",
+      "passages": 3,
+      "avg_words": 40.7
+    }
+  ],
+  "top_terms": [
+    {
+      "term": "academic",
+      "count": 274
+    },
+    {
+      "term": "chinese",
+      "count": 266
+    },
+    {
+      "term": "term",
+      "count": 251
+    },
+    {
+      "term": "social",
+      "count": 240
+    },
+    {
+      "term": "world",
+      "count": 214
+    },
+    {
+      "term": "global",
+      "count": 201
+    },
+    {
+      "term": "study",
+      "count": 199
+    },
+    {
+      "term": "political",
+      "count": 186
+    },
+    {
+      "term": "china",
+      "count": 185
+    },
+    {
+      "term": "major",
+      "count": 181
+    },
+    {
+      "term": "topics",
+      "count": 175
+    },
+    {
+      "term": "including",
+      "count": 174
+    },
+    {
+      "term": "cultural",
+      "count": 167
+    },
+    {
+      "term": "research",
+      "count": 161
+    },
+    {
+      "term": "science",
+      "count": 160
+    },
+    {
+      "term": "work",
+      "count": 156
+    },
+    {
+      "term": "studies",
+      "count": 154
+    },
+    {
+      "term": "health",
+      "count": 153
+    },
+    {
+      "term": "include",
+      "count": 149
+    },
+    {
+      "term": "history",
+      "count": 148
+    }
+  ],
+  "clusters": [
+    {
+      "cluster": 0,
+      "name": "Physical Education & Sports",
+      "size": 32,
+      "terms": [
+        "fitness",
+        "workout",
+        "martial",
+        "weight training",
+        "football",
+        "swimming",
+        "lifestyle",
+        "sport",
+        "martial arts",
+        "recreational"
+      ]
+    },
+    {
+      "cluster": 1,
+      "name": "Fees, Aid & Student Services",
+      "size": 59,
+      "terms": [
+        "edu cn",
+        "cn",
+        "dukekunshan edu",
+        "dukekunshan",
+        "deposit",
+        "edu",
+        "residence",
+        "financial aid",
+        "rmb",
+        "residence life"
+      ]
+    },
+    {
+      "cluster": 2,
+      "name": "Biology & Chemistry",
+      "size": 79,
+      "terms": [
+        "molecular",
+        "cellular",
+        "reactions",
+        "chemical",
+        "organisms",
+        "biological",
+        "cell",
+        "genome",
+        "metabolism",
+        "bioscience"
+      ]
+    },
+    {
+      "cluster": 3,
+      "name": "Language Learning",
+      "size": 59,
+      "terms": [
+        "language learning",
+        "vocabulary",
+        "reading writing",
+        "speaking",
+        "target language",
+        "learning studio",
+        "learners learn",
+        "authentic",
+        "specific goals",
+        "aspects materials"
+      ]
+    },
+    {
+      "cluster": 4,
+      "name": "Math, Computer Science & Data Science",
+      "size": 88,
+      "terms": [
+        "algorithms",
+        "data science",
+        "math",
+        "markov",
+        "distributions",
+        "theorem",
+        "data",
+        "linear",
+        "software",
+        "programming"
+      ]
+    },
+    {
+      "cluster": 5,
+      "name": "Grading & Placement Credit",
+      "size": 78,
+      "terms": [
+        "placement basis",
+        "basis college",
+        "board examination",
+        "advanced placement",
+        "college board",
+        "grade",
+        "grade nc",
+        "grading",
+        "graduating",
+        "nc"
+      ]
+    },
+    {
+      "cluster": 6,
+      "name": "Society, Culture & Global Humanities",
+      "size": 124,
+      "terms": [
+        "religious",
+        "migrations",
+        "america",
+        "political",
+        "latin american",
+        "asian migrations",
+        "theorists",
+        "thinkers",
+        "migration",
+        "american"
+      ]
+    },
+    {
+      "cluster": 7,
+      "name": "Degree Credits, Matriculation & Transfer",
+      "size": 92,
+      "terms": [
+        "prior matriculation",
+        "matriculation",
+        "prematriculation",
+        "precollege",
+        "ap",
+        "ipc",
+        "bachelor degree",
+        "bachelor",
+        "placement",
+        "ap ipc"
+      ]
+    },
+    {
+      "cluster": 8,
+      "name": "Registration, Leave & Academic Calendar",
+      "size": 100,
+      "terms": [
+        "leave absence",
+        "schedule",
+        "thursday",
+        "week classes",
+        "april",
+        "incomplete",
+        "classes continue",
+        "leave",
+        "graduate classes",
+        "medical leave"
+      ]
+    },
+    {
+      "cluster": 9,
+      "name": "Politics, Economics & Behavior",
+      "size": 85,
+      "terms": [
+        "regulatory",
+        "behavioral science",
+        "markets",
+        "democratic",
+        "political",
+        "trade",
+        "democracy",
+        "wealth",
+        "behavioral",
+        "populism"
+      ]
+    },
+    {
+      "cluster": 10,
+      "name": "Major Requirement Lists & Electives",
+      "size": 74,
+      "terms": [
+        "math",
+        "electives recommended",
+        "recommended major",
+        "updated",
+        "updated periodically",
+        "level history",
+        "list updated",
+        "history level",
+        "recommended",
+        "compsci"
+      ]
+    },
+    {
+      "cluster": 11,
+      "name": "Environment & Global Health",
+      "size": 57,
+      "terms": [
+        "sustainable",
+        "global health",
+        "pollution",
+        "health systems",
+        "species",
+        "ecosystem",
+        "environmental justice",
+        "public health",
+        "environmental",
+        "environmental problems"
+      ]
+    },
+    {
+      "cluster": 12,
+      "name": "Interdisciplinary Seminars & Advising",
+      "size": 78,
+      "terms": [
+        "variety disciplines",
+        "core component",
+        "translate areas",
+        "flexibly specific",
+        "seminar foster",
+        "faculty major",
+        "apply interdisciplinary",
+        "seminar core",
+        "develop capacities",
+        "vary seminar"
+      ]
+    },
+    {
+      "cluster": 13,
+      "name": "Media & Arts",
+      "size": 64,
+      "terms": [
+        "new media",
+        "audio",
+        "digital",
+        "video",
+        "storytelling",
+        "movies",
+        "film",
+        "sound",
+        "filmmaking",
+        "media arts"
+      ]
+    },
+    {
+      "cluster": 14,
+      "name": "Asia Studies",
+      "size": 88,
+      "terms": [
+        "asia",
+        "trade",
+        "southeast",
+        "southeast asia",
+        "modern china",
+        "alliance",
+        "china role",
+        "chinese literature",
+        "chinese economy",
+        "south"
+      ]
+    }
+  ]
+}
