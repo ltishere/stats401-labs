@@ -1,0 +1,41 @@
+city,country,region,lat,lon,price_2026_usd,change_2016_2026_pct
+Singapore,Singapore,Asia-Pacific,1.35,103.82,156200,68
+Tel Aviv,Israel,Middle East & Africa,32.08,34.78,57900,70
+Copenhagen,Denmark,Europe,55.68,12.57,51300,15
+Istanbul,Türkiye,Europe,41.01,28.98,49100,89
+Oslo,Norway,Europe,59.91,10.75,47000,37
+Hong Kong,Hong Kong,Asia-Pacific,22.32,114.17,44600,58
+Geneva,Switzerland,Europe,46.20,6.14,44100,64
+Amsterdam,Netherlands,Europe,52.37,4.90,42300,42
+Kuala Lumpur,Malaysia,Asia-Pacific,3.14,101.69,41800,20
+Birmingham,UK,Europe,52.49,-1.89,40300,46
+Dublin,Ireland,Europe,53.35,-6.26,39900,48
+Moscow,Russia,Europe,55.76,37.62,39000,134
+London,UK,Europe,51.51,-0.13,38700,40
+Edinburgh,UK,Europe,55.95,-3.19,38700,32
+Zurich,Switzerland,Europe,47.38,8.54,38500,33
+Helsinki,Finland,Europe,60.17,24.94,37400,32
+Milan,Italy,Europe,45.46,9.19,37100,62
+San Francisco,U.S.,North America,37.77,-122.42,37000,69
+Los Angeles,U.S.,North America,34.05,-118.24,37000,53
+Boston,U.S.,North America,42.36,-71.06,36600,63
+Chicago,U.S.,North America,41.88,-87.63,36500,58
+Johannesburg,South Africa,Middle East & Africa,-26.20,28.05,36300,90
+Cape Town,South Africa,Middle East & Africa,-33.92,18.42,36300,105
+Rome,Italy,Europe,41.90,12.50,36300,54
+Brussels,Belgium,Europe,50.85,4.35,36200,45
+Madrid,Spain,Europe,40.42,-3.70,36100,67
+Barcelona,Spain,Europe,41.39,2.17,36100,68
+New York,U.S.,North America,40.71,-74.01,35500,49
+Paris,France,Europe,48.86,2.35,35400,49
+Cairo,Egypt,Middle East & Africa,30.04,31.24,34600,8
+Riyadh,Saudi Arabia,Middle East & Africa,24.71,46.68,34600,94
+Lisbon,Portugal,Europe,38.72,-9.14,34400,24
+Stockholm,Sweden,Europe,59.33,18.07,34300,33
+Munich,Germany,Europe,48.14,11.58,33600,34
+Frankfurt,Germany,Europe,50.11,8.68,33600,50
+Berlin,Germany,Europe,52.52,13.40,33600,58
+Taipei,Taiwan,Asia-Pacific,25.03,121.57,33300,5
+Budapest,Hungary,Europe,47.50,19.04,32400,63
+Prague,Czech Republic,Europe,50.08,14.44,32100,81
+Warsaw,Poland,Europe,52.23,21.01,32000,77

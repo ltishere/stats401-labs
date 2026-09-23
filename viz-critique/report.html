@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Report: Visualization Critique and Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="page-head">
+  <p class="kicker">Visualization Critique and Redesign</p>
+  <nav class="tabs" aria-label="Project sections">
+    <a href="index.html">Visualization</a>
+    <a href="report.html" aria-current="page">Report</a>
+  </nav>
+</header>
+
+<main class="report">
+<h1>What a new car costs: critique and redesign</h1>
+<p class="meta">Tian Liang · STATS 401</p>
+
+<h2>1. The original and its context</h2>
+<!-- REPORT-BODY-START -->
+<p>Visual Capitalist's infographic <em>How Much It Costs to Buy a New Car Across 30 Global Cities</em> (Neufeld &amp; Kostandi, 2026) ranks 30 cities by the 2026 price of a Volkswagen Golf 1.5 or an equivalent new car, in US dollars, using data from Deutsche Bank and Numbeo. A radial bar chart arcs across the top, and a tilted world map below marks each city with a numbered pin. The article's table covers 40 cities and also reports each city's price change since 2016.</p>
+<p>The intended message is that Singapore is an extreme outlier at $156K, driven by its vehicle quota system, while most cities sit in a narrow price band. The audience is general readers encountering the graphic in news feeds or on social media. The tasks it should support are ranking cities, comparing prices, spotting the outlier, and locating cities geographically.</p>
+
+<figure>
+  <img src="images/original.png" alt="Original infographic: radial bar chart of new car prices above a tilted map with numbered pins.">
+  <figcaption>Figure 1. The original infographic (Visual Capitalist, 2026).</figcaption>
+</figure>
+
+<h2>2. Critique</h2>
+<h3>Strengths</h3>
+<ul>
+  <li><strong>Memorable and attention-grabbing.</strong> High-contrast colors, bold type and illustration suit a general audience. Research shows that embellished and visually distinctive charts are recalled better than plain ones (Bateman et al., 2010; Borkin et al., 2013).</li>
+  <li><strong>Clear ranking and outlier.</strong> Bars are sorted and carry rank numbers and value labels, and Singapore is set apart in red with an annotation explaining why.</li>
+</ul>
+<h3>Weaknesses</h3>
+<ul>
+  <li><strong>The tilted map and pins hinder lookup.</strong> The oblique perspective distorts shapes and compresses distant regions, and the arrow-shaped pins point in different directions. In Europe, more than 15 pins crowd inside a magnifier circle. Pins show only numbers, so readers must shuttle between map and arc to identify each city, a split-attention cost. A flat projection, labeled marks and a separate Europe panel would fix this.</li>
+  <li><strong>The radial layout undermines comparison.</strong> Bars fan out in different directions with no shared baseline, axis or gridlines, and labels rotate as the arc turns. Most cities fall between $35K and $58K, so differences of a few thousand dollars are invisible and readers fall back on reading labels. Singapore's bar also runs off the canvas without a break mark, hiding that it costs nearly three times the runner-up. Aligned bars with a zero baseline and an explicit break would restore accurate comparison.</li>
+  <li><strong>Wasted color and discarded data.</strong> The orange-to-yellow gradient repeats the rank already shown by order and length. Meanwhile the graphic drops 10 of the 40 cities and the entire ten-year change column. Color should encode value, and the change data deserves its own view.</li>
+</ul>
+
+<h2>3. Redesign rationale</h2>
+<h3>Decision 1: Flat maps with spikes</h3>
+<p>I replaced the tilted map with a flat Equal Earth world map plus an enlarged map of Europe, where 26 of the 40 cities lie. Each city is a labeled spike whose height encodes the selected measure, on the same scale in both maps, with reference spikes as a key. This addresses the first weakness: the map now carries values and names itself, so no lookup is needed. I chose spikes over proportional circles because length is judged more accurately than area (Cleveland &amp; McGill, 1984), and their narrow bases reduce overlap in dense Europe.</p>
+<h3>Decision 2: A linked, ranked bar chart</h3>
+<p>Beside the maps, horizontal bars rank all cities on a zero baseline with gridlines, a median line ($36.5K excluding Singapore) and a visible break on Singapore's bar. Hovering a bar or a spike highlights the same city in both views. This addresses the second weakness and follows task-driven design (Munzner, 2014): the maps answer "where," while the bars answer "how much" and "which rank" precisely.</p>
+<h3>Decision 3: A measure toggle and meaningful color</h3>
+<p>A toggle switches both views between the 2026 price and the change since 2016. Color now encodes value with sequential ramps, yellow-orange for price and blue for change, applied identically to spikes and bars. This addresses the third weakness and reveals a story the original hid: price level and growth are almost unrelated (correlation 0.08). Moscow (+134%) and Cape Town (+105%) rose fastest, while Taipei (+5%) and Cairo (+8%) barely moved.</p>
+
+<figure>
+  <img src="images/redesign.png" alt="Redesign: headline, world and Europe spike maps, and a ranked bar chart of new car prices.">
+  <figcaption>Figure 2. The D3.js redesign, showing 2026 prices. The toggle switches both views to price change since 2016.</figcaption>
+</figure>
+
+<h2>4. Original vs. redesign</h2>
+<p>The redesign makes it easy to compare cities precisely, see how tightly most prices cluster, find any city on the map by name, and answer a new question: where did prices rise most? None of these was practical in the original. The trade-offs are real, however. The redesign is less striking and likely less memorable. Spikes in Europe still sit close together, and because spikes lack a common baseline, cross-map comparisons rely on the bar chart. The 2016 prices are derived from reported percentages, and changes measured in US dollars include exchange-rate effects, as in Istanbul. Finally, the interactions do not carry over to static screenshots.</p>
+<!-- REPORT-BODY-END -->
+
+<h2>References</h2>
+<ul>
+  <li>Bateman, S., Mandryk, R. L., Gutwin, C., Genest, A., McDine, D., &amp; Brooks, C. (2010). Useful junk? The effects of visual embellishment on comprehension and memorability of charts. <em>Proceedings of CHI 2010</em>, 2573–2582.</li>
+  <li>Borkin, M. A., Vo, A. A., Bylinskii, Z., Isola, P., Sunkavalli, S., Oliva, A., &amp; Pfister, H. (2013). What makes a visualization memorable? <em>IEEE Transactions on Visualization and Computer Graphics, 19</em>(12), 2306–2315.</li>
+  <li>Bostock, M. Spike map. Observable / D3 gallery.</li>
+  <li>Cleveland, W. S., &amp; McGill, R. (1984). Graphical perception: Theory, experimentation, and application to the development of graphical methods. <em>Journal of the American Statistical Association, 79</em>(387), 531–554.</li>
+  <li>Deutsche Bank Research. (2026). <em>Mapping the world's prices 2026</em>.</li>
+  <li>Munzner, T. (2014). <em>Visualization analysis and design</em>. CRC Press.</li>
+  <li>Neufeld, D., &amp; Kostandi, C. (2026). How much it costs to buy a new car across 30 global cities. <em>Visual Capitalist</em>. <a href="https://www.visualcapitalist.com/how-much-it-costs-to-buy-a-new-car-in-30-cities-map/">https://www.visualcapitalist.com/how-much-it-costs-to-buy-a-new-car-in-30-cities-map/</a></li>
+  <li>Numbeo. Cost of living database.</li>
+  <li>Bostock, M. world-atlas (v2.0.2): Natural Earth country boundaries in TopoJSON. <a href="https://github.com/topojson/world-atlas">https://github.com/topojson/world-atlas</a></li>
+</ul>
+</main>
+</body>
+</html>
