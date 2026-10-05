@@ -1,13 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 9</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 9: Geospatial Visualization</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      max-width: 1000px;
+      margin: auto;
+      padding: 1rem;
+      line-height: 1.6;
+      color: #222;
+    }
+    p { max-width: 75ch; }
+    svg {
+      width: 100%;
+      height: auto;
+      background: #f8fbff;
+      border: 1px solid #ddd;
+      display: block;
+    }
+    .country {
+      stroke: white;
+      stroke-width: 0.5;
+      vector-effect: non-scaling-stroke;
+      cursor: pointer;
+    }
+    .bubble { cursor: pointer; }
+    .highlight {
+      stroke: black !important;
+      stroke-width: 2 !important;
+    }
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      background: white;
+      border: 1px solid #999;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .note { font-size: 14px; color: #555; }
+  </style>
 </head>
 <body>
-  <h1>Lab 9</h1>
-  <p>Lab 9 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+  <h1>Lab 9: Geospatial Visualization</h1>
+
+  <h2>1. Dataset Description</h2>
+  <p>
+  This lab uses 2025 nominal GDP (current prices, billions of U.S. dollars) for the
+  50 largest economies, based on the IMF World Economic Outlook (October 2025).
+  Values range from $300 billion (Kazakhstan, rank 50) to $30.6 trillion
+  (United States, rank 1). Some figures are IMF staff estimates and may be revised later.
+</p>
+<p>
+  Country boundaries come from a world GeoJSON file (D3 Graph Gallery) and are joined
+  to the GDP table by ISO-3 code. Countries outside the top 50 are shown in gray as
+  "no data"; they are not treated as zero GDP. Hong Kong SAR and Singapore are too
+  small to have polygons in this boundary file, so they appear only in the cartogram,
+  where they are placed by longitude and latitude.
+</p>
+
+  <h2>2. 2025 GDP Choropleth</h2>
+  <p class="note">Hover over a country to see its GDP. Scroll or drag to zoom and pan.</p>
+  <svg id="choropleth" viewBox="0 0 960 520"></svg>
+
+  <h2>3. 2025 GDP Cartogram</h2>
+  <p><strong>Circle area is proportional to 2025 nominal GDP.</strong></p>
+  <p class="note">Each top-50 economy is drawn as a circle placed near its geographic location. Hovering a circle highlights the same country in the choropleth above.</p>
+  <svg id="cartogram" viewBox="0 0 960 520"></svg>
+
+  <h2>4. Design and Comparison</h2>
+  <p>
+  The choropleth encodes GDP with color on a logarithmic scale. Because the top economy
+  is about 100 times larger than the 50th, a linear scale would make nearly every country
+  except the United States and China look the same pale blue; the log scale separates the
+  middle tier, at the cost of compressing ratios. In the choropleth, the most prominent
+  countries are the United States and China, but large territories such as Russia, Canada,
+  Brazil, and Australia also dominate visually simply because of their land area. The map
+  preserves borders, shapes, and adjacency, so it best supports locating countries and
+  seeing regional patterns, such as concentrations of large economies in East Asia and
+  Western Europe and the near absence of Africa from the top 50.
+</p>
+<p>
+  The cartogram encodes GDP with circle area and uses a single color so area is the only
+  encoding. Russia, Canada, and Australia shrink sharply, while compact economies such as
+  Japan, Germany, the United Kingdom, and South Korea grow. Shapes, borders, and exact
+  positions are lost, so the cartogram best supports comparing magnitudes: the United
+  States is about 1.6 times China and seven times Japan. Moving from color to area changes
+  perception of global economic size: color shows rank and region, while area makes the
+  concentration of output in a few economies obvious. Linked highlighting helps reconnect
+  distorted circles to their geography. Neither map is better overall; the right choice
+  depends on whether the task is spatial or quantitative.
+</p>
+
+  <div id="tooltip" class="tooltip"></div>
+  <script src="main.js"></script>
 </body>
 </html>
