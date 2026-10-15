@@ -1,13 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lab 10</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 10 — Voice & Gesture Control for a Temporal Network</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: #f7f6f2; color: #222; margin: 0; padding: 32px 20px;
+    }
+    .container { max-width: 1320px; margin: 0 auto; }
+    h1 { font-size: 26px; margin: 0 0 4px; }
+    .subtitle { color: #666; margin: 0 0 20px; }
+    h2 { font-size: 18px; margin: 32px 0 10px; }
+    h3 { font-size: 15px; margin: 0 0 8px; }
+
+    .card {
+      background: white; border-radius: 10px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* 主布局：左边网络图，右边交互面板 */
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+
+    /* 控制条（Lab 7 原有） */
+    .controls {
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap; margin-bottom: 10px;
+    }
+    button, select {
+      font-size: 14px; padding: 7px 14px; border-radius: 6px;
+      border: 1px solid #ccc; background: white; cursor: pointer; color: #222;
+    }
+    button:hover { background: #f0efe9; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.active { background: #2f6f4f; color: white; border-color: #2f6f4f; }
+    #time-slider { flex: 1; min-width: 220px; }
+    #day-label { font-size: 16px; font-weight: 700; min-width: 180px; }
+
+    .focus-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 13px; color: #555; margin-bottom: 12px; }
+    #focus-label { font-weight: 700; color: #b5532a; }
+
+    /* 统计 */
+    .stats { display: flex; gap: 28px; margin-bottom: 8px; font-size: 14px; flex-wrap: wrap; }
+    .stats .value { font-size: 19px; font-weight: 700; display: block; }
+    .stats .label { color: #777; font-size: 12px; }
+
+    /* 图例 */
+    .legend { display: flex; gap: 26px; flex-wrap: wrap; font-size: 13px; margin-top: 14px; }
+    .legend .item { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .legend .swatch { width: 13px; height: 13px; border-radius: 50%; }
+
+    .tooltip {
+      position: absolute; opacity: 0; pointer-events: none;
+      background: rgba(30,30,30,0.92); color: white;
+      padding: 8px 12px; border-radius: 6px; font-size: 13px; line-height: 1.5;
+    }
+    svg { width: 100%; height: auto; display: block; }
+
+    /* 动作提示：识别到命令时在图上闪一下 */
+    .net-wrap { position: relative; }
+    #toast {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      background: rgba(30,30,30,0.88); color: white; font-size: 15px; font-weight: 600;
+      padding: 8px 16px; border-radius: 20px; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; }
+
+    /* 右侧交互面板 */
+    .panel .section { border-top: 1px solid #eee; padding-top: 12px; margin-top: 12px; }
+    .panel .section:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .kv { font-size: 13px; line-height: 1.6; margin-top: 8px; }
+    .kv .k { color: #888; display: inline-block; width: 68px; }
+    .kv .v { font-weight: 600; }
+    .hint { font-size: 12px; color: #777; line-height: 1.55; margin-top: 8px; }
+    .hint code { background: #f1f0ea; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .cam-box { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #222; border-radius: 8px; overflow: hidden; margin-top: 10px; display: none; }
+    .cam-box.on { display: block; }
+    #camera, #overlay { position: absolute; inset: 0; width: 100%; height: 100%; transform: scaleX(-1); object-fit: cover; }
+    #hold-bar { position: absolute; left: 0; bottom: 0; height: 5px; width: 0; background: #e07a4a; transition: width 0.08s linear; }
+
+    .gesture-table { font-size: 12px; width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .gesture-table td { padding: 3px 0; border-bottom: 1px dotted #e5e5e5; }
+    .gesture-table td:first-child { color: #555; }
+    .gesture-table td:last-child { text-align: right; font-weight: 600; }
+
+    #log { list-style: none; padding: 0; margin: 8px 0 0; font-size: 12px; }
+    #log li { padding: 4px 0; border-bottom: 1px dotted #e5e5e5; }
+    #log .src { display: inline-block; min-width: 54px; font-weight: 700; }
+    #log .src.Voice { color: #2f6f4f; }
+    #log .src.Gesture { color: #b5532a; }
+    #log .src.Mouse { color: #4a6a8a; }
+
+    .description { line-height: 1.75; max-width: 900px; }
+    .privacy { font-size: 12px; color: #777; margin-top: 10px; line-height: 1.5; }
+  </style>
 </head>
 <body>
-  <h1>Lab 10</h1>
-  <p>Lab 10 will be added here.</p>
-  <a href="../index.html">← Back to home</a>
+  <div class="container">
+    <h1>Temporal Commercial Network — Voice &amp; Gesture Control</h1>
+    <p class="subtitle">
+      Lab 10 extension of my Lab 7 visualization: navigate the 60 days and focus on regions or companies
+      by speaking or with hand gestures. Every action is also available with the mouse and keyboard.
+    </p>
+
+    <div class="layout">
+      <!-- ===== 左：Lab 7 网络图（原样保留 + focus 控件） ===== -->
+      <div class="card">
+        <div class="controls">
+          <button id="play">▶ Play</button>
+          <button id="pause">⏸ Pause</button>
+          <button id="reset">↺ Reset</button>
+          <input type="range" id="time-slider" min="1" max="60" value="1" step="1" aria-label="Day">
+          <span id="day-label">Day 1</span>
+        </div>
+
+        <!-- 常规 fallback：下拉框完成与语音相同的 filter / highlight -->
+        <div class="focus-row">
+          <span>Focus:</span>
+          <select id="region-select" aria-label="Filter by region">
+            <option value="">All regions</option>
+          </select>
+          <select id="company-select" aria-label="Highlight company">
+            <option value="">Highlight company…</option>
+          </select>
+          <button id="clear-focus">Clear focus</button>
+          <span id="focus-label">None</span>
+        </div>
+
+        <div class="stats">
+          <div><span class="value" id="stat-companies">0</span><span class="label">Active companies</span></div>
+          <div><span class="value" id="stat-links">0</span><span class="label">Active links</span></div>
+          <div><span class="value" id="stat-value">$0</span><span class="label">Total value</span></div>
+          <div><span class="value" id="stat-cross">0%</span><span class="label">Cross-region links</span></div>
+        </div>
+
+        <div class="net-wrap">
+          <div id="network"></div>
+          <div id="toast"></div>
+        </div>
+
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <!-- ===== 右：新交互面板 ===== -->
+      <div class="card panel">
+        <div class="section">
+          <h3>🎤 Voice</h3>
+          <div class="btn-row">
+            <button id="voice-button">Start Voice Control</button>
+          </div>
+          <div class="kv">
+            <div><span class="k">Status</span><span class="v" id="voice-state">Inactive</span></div>
+            <div><span class="k">Heard</span><span class="v" id="voice-heard">—</span></div>
+            <div><span class="k">Action</span><span class="v" id="voice-action">—</span></div>
+          </div>
+          <div class="hint" id="voice-help">
+            Try: <code>play</code> <code>pause</code> <code>next</code> <code>previous</code>
+            <code>day 42</code> <code>show Asia</code> <code>highlight Cedar Retail</code>
+            <code>show all</code> <code>faster</code> <code>slower</code> <code>reset</code>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>✋ Hand Gesture</h3>
+          <div class="btn-row">
+            <button id="camera-start">Start Camera</button>
+            <button id="camera-stop" disabled>Stop Camera</button>
+          </div>
+          <div class="cam-box" id="cam-box">
+            <video id="camera" autoplay playsinline muted></video>
+            <canvas id="overlay" width="640" height="480"></canvas>
+            <div id="hold-bar"></div>
+          </div>
+          <div class="kv">
+            <div><span class="k">Camera</span><span class="v" id="camera-state">Off</span></div>
+            <div><span class="k">Detected</span><span class="v" id="gesture-detected">—</span></div>
+            <div><span class="k">Action</span><span class="v" id="gesture-action">—</span></div>
+          </div>
+          <table class="gesture-table">
+            <tr><td>Swipe right →</td><td>Next day</td></tr>
+            <tr><td>← Swipe left</td><td>Previous day</td></tr>
+            <tr><td>✋ Open palm (hold)</td><td>Play</td></tr>
+            <tr><td>✊ Fist (hold)</td><td>Pause</td></tr>
+            <tr><td>✌️ Victory (hold)</td><td>Reset</td></tr>
+          </table>
+          <div class="hint">Hold a static gesture still for ~0.5 s (the orange bar fills). Swipe across the camera in one quick motion.</div>
+        </div>
+
+        <div class="section">
+          <h3>Action log</h3>
+          <ul id="log"><li style="color:#999">No actions yet</li></ul>
+          <div class="privacy">
+            Camera and microphone start only after you click. Video frames are processed locally in your
+            browser (MediaPipe) and never uploaded. Speech recognition uses the browser's Web Speech API
+            (Chrome/Edge), which sends audio to the browser vendor's speech service.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>How to Use</h2>
+    <div class="description">
+      <p><strong>Voice.</strong> Click <em>Start Voice Control</em> and allow the microphone (Chrome or Edge).
+      Voice stays on until you click the button again. Say a command such as “day 42”, “next”, “show Europe”
+      or “highlight Ion Systems”. The panel shows what was heard and which action ran; unrecognized phrases
+      show a hint instead of doing anything.</p>
+      <p><strong>Gesture.</strong> Click <em>Start Camera</em> and allow the webcam; the hand model loads once
+      (a few seconds). Keep one hand in view. Swipe left/right to step through days; hold an open palm to
+      play, a fist to pause, and a victory sign to reset. Each gesture has a cooldown so one motion triggers
+      one action.</p>
+      <p><strong>Fallback.</strong> Buttons, the slider and the Focus dropdowns do everything the novel inputs do.
+      Keyboard: <code>Space</code> play/pause, <code>←</code>/<code>→</code> previous/next day,
+      <code>Esc</code> clear focus. Hover nodes and links for tooltips.</p>
+    </div>
+
+    <h2>Design Reflection</h2>
+    <div class="description" id="reflection">
+      <p>I extended my Lab 7 animated commercial-network visualization with two novel modalities: voice
+      commands and webcam hand gestures. The core task in Lab 7 is temporal navigation — stepping through
+      60 days and stopping on a moment to see who trades with whom — while keeping attention on the network.
+      With a mouse, every step means looking away to the slider. Swiping left or right maps naturally to
+      previous/next day because time already runs left to right, and an open palm or fist mirrors “go” and
+      “stop.” Voice supports a second task: jumping directly to a day (“day 42”) or focusing on one region or
+      company (“show Europe”, “highlight Ion Systems”), which otherwise requires scrubbing or searching a
+      dropdown. Both modalities call the same functions as the buttons, so mouse and keyboard remain full
+      fallbacks. Limitations: in testing, gesture recognition was the weak point. Static gestures were often
+      not detected, and a small hand movement interrupted recognition; swipes were frequently missed when too
+      fast or too slow. I relaxed the stillness and timing thresholds, but gestures remain less reliable
+      than voice or buttons.</p>
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="lab10.js"></script>
 </body>
 </html>
